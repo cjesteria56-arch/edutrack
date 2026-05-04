@@ -29,25 +29,29 @@
 
 <h3>Tasks</h3>
 
-<table border="1">
-    <tr>
-        <th>Task</th>
-        <th>Deadline</th>
-        <th>Status</th>
-        <th>Quote</th>
-        <th>Action</th>
-    </tr>
+{% for task in tasks %}
+    <div style="border:1px solid black; padding:10px; margin:10px;">
 
-    {% for t in tasks %}
-    <tr>
-        <td>{{ t.task }}</td>
-        <td>{{ t.deadline }}</td>
-        <td>{{ t.status }}</td>
-        <td>{{ t.quote }}</td>
-        <td><a href="/delete/{{ loop.index0 }}">Delete</a></td>
-    </tr>
-    {% endfor %}
-</table>
+        <p><b>Task:</b> {{ task.task }}</p>
+        <p><b>Deadline:</b> {{ task.deadline }}</p>
+        <p><b>Status:</b> {{ task.status }}</p>
+        <p><i>{{ task.quote }}</i></p>
+
+        <!-- UPDATE STATUS -->
+        <form action="/update_status/{{ loop.index0 }}" method="POST">
+            <select name="status">
+                <option>Not Started</option>
+                <option>In Progress</option>
+                <option>Done</option>
+            </select>
+            <button type="submit">Update Status</button>
+        </form>
+
+        <!-- DELETE -->
+        <a href="/delete/{{ loop.index0 }}">Delete</a>
+
+    </div>
+{% endfor %}
 
 </body>
 </html>
