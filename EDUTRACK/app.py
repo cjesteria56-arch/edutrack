@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session
 import json
 import os
+import uuid
 
 app = Flask(__name__)
 app.secret_key = "edutrack"
@@ -14,7 +15,7 @@ quotes = {
     "Done": "Well done! Task completed."
 }
 
-# ---------------- FILE HANDLING ----------------
+# ---------------- FILE ----------------
 
 def load_tasks():
     if os.path.exists("tasks.json"):
@@ -53,6 +54,7 @@ def home():
         status = request.form["status"]
 
         tasks.append({
+            "id": str(uuid.uuid4()),
             "task": task,
             "deadline": f"{date} {time}",
             "status": status,
@@ -64,30 +66,29 @@ def home():
 
     return render_template("index.html", tasks=tasks)
 
-# ---------------- DELETE TASK ----------------
+# ---------------- UPDATE STATUS ----------------
 
-@app.route("/delete/<int:index>")
-def delete(index):
+@app.route("/update_status/<task_id>", methods=["POST"])
+def update_status(task_id):
     tasks = load_tasks()
 
-    if 0 <= index < len(tasks):
-        tasks.pop(index)
-        save_tasks(tasks)
+    for task in tasks:
+        if task["id"] == task_id:
+            new_status = request.form["status"]
+            task["status"] = new_status
+            task["quote"] = quotes[new_status]
+            break
 
+    save_tasks(tasks)
     return redirect("/home")
 
-# ---------------- UPDATE STATUS (NEW FEATURE) ----------------
+# ---------------- DELETE ----------------
 
-@app.route("/update_status/<int:index>", methods=["POST"])
-def update_status(index):
+@app.route("/delete/<task_id>")
+def delete(task_id):
     tasks = load_tasks()
-
-    if 0 <= index < len(tasks):
-        new_status = request.form["status"]
-        tasks[index]["status"] = new_status
-        tasks[index]["quote"] = quotes[new_status]
-        save_tasks(tasks)
-
+    tasks = [t for t in tasks if t["id"] != task_id]
+    save_tasks(tasks)
     return redirect("/home")
 
 # ---------------- LOGOUT ----------------
@@ -97,7 +98,7 @@ def logout():
     session.clear()
     return redirect("/")
 
-# ---------------- RUN APP ----------------
+# ---------------- RUN ----------------
 
 if __name__ == "__main__":
     app.run(debug=True)
