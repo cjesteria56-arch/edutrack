@@ -17,42 +17,42 @@
     <input type="time" name="time" required>
 
     <select name="status">
-        <option>Not Started</option>
-        <option>In Progress</option>
-        <option>Done</option>
+        <option value="Not Started">Not Started</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Done">Done</option>
     </select>
 
-    <button type="submit">Add Task</button>
+    <button type="submit">Add</button>
 </form>
 
 <hr>
 
-<h3>Tasks</h3>
+<h3>Task List</h3>
 
+<ul>
 {% for task in tasks %}
-<div style="border:1px solid black; padding:10px; margin:10px;">
+    <li>
+        <b>{{ task.task }}</b> <br>
+        Deadline: {{ task.deadline }} <br>
+        Status: <b>{{ task.status }}</b> <br>
+        💬 {{ task.quote }} <br><br>
 
-    <p><b>Task:</b> {{ task.task }}</p>
-    <p><b>Deadline:</b> {{ task.deadline }}</p>
-    <p><b>Status:</b> {{ task.status }}</p>
-    <p><i>{{ task.quote }}</i></p>
+        <!-- UPDATE STATUS -->
+        <form action="/update_status/{{ loop.index0 }}" method="POST">
+            <select name="status">
+                <option value="Not Started" {% if task.status == "Not Started" %}selected{% endif %}>Not Started</option>
+                <option value="In Progress" {% if task.status == "In Progress" %}selected{% endif %}>In Progress</option>
+                <option value="Done" {% if task.status == "Done" %}selected{% endif %}>Done</option>
+            </select>
+            <button type="submit">Update</button>
+        </form>
 
-    <!-- UPDATE STATUS -->
-    <form action="/update_status/{{ task.id }}" method="POST">
-        <select name="status">
-            <option {% if task.status == "Not Started" %}selected{% endif %}>Not Started</option>
-            <option {% if task.status == "In Progress" %}selected{% endif %}>In Progress</option>
-            <option {% if task.status == "Done" %}selected{% endif %}>Done</option>
-        </select>
-
-        <button type="submit">Update Status</button>
-    </form>
-
-    <!-- DELETE -->
-    <a href="/delete/{{ task.id }}">Delete</a>
-
-</div>
+        <!-- DELETE -->
+        <a href="/delete/{{ loop.index0 }}">Delete</a>
+    </li>
+    <hr>
 {% endfor %}
+</ul>
 
 </body>
 </html>
