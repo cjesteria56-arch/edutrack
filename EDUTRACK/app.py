@@ -58,6 +58,19 @@ def home():
 
     return render_template("index.html", tasks=tasks)
 
+@app.route("/update_status/<int:index>", methods=["POST"])
+def update_status(index):
+    tasks = load_tasks()
+
+    if 0 <= index < len(tasks):
+        new_status = request.form["status"]
+        tasks[index]["status"] = new_status
+        tasks[index]["quote"] = quotes[new_status]
+
+        save_tasks(tasks)
+
+    return redirect("/home")
+
 @app.route("/delete/<int:index>")
 def delete(index):
     tasks = load_tasks()
