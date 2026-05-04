@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EDUTRACK</title>
+</head>
+<body>
+
+<h2>📚 EDUTRACK</h2>
+
+<a href="/logout">Logout</a>
+
+<h3>Add Task</h3>
+
+<form method="POST">
+    <input name="task" placeholder="Task" required>
+    <input type="date" name="date" required>
+    <input type="time" name="time" required>
+
+    <select name="status">
+        <option>Not Started</option>
+        <option>In Progress</option>
+        <option>Done</option>
+    </select>
+
+    <button type="submit">Add</button>
+</form>
+
+<hr>
+
+<h3>Tasks</h3>
+
+<table border="1">
+    <tr>
+        <th>Task</th>
+        <th>Deadline</th>
+        <th>Status</th>
+        <th>Quote</th>
+        <th>Action</th>
+    </tr>
+
+    {% for t in tasks %}
+    <tr>
+        <td>{{ t.task }}</td>
+        <td>{{ t.deadline }}</td>
+        <td>{{ t.status }}</td>
+        <td>{{ t.quote }}</td>
+        <td><a href="/delete/{{ loop.index0 }}">Delete</a></td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>
