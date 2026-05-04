@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, session
 import json
 import os
-import uuid
 
 app = Flask(__name__)
 app.secret_key = "edutrack"
@@ -15,8 +14,6 @@ quotes = {
     "Done": "Well done! Task completed."
 }
 
-# ---------------- FILE ----------------
-
 def load_tasks():
     if os.path.exists("tasks.json"):
         with open("tasks.json", "r") as f:
@@ -27,8 +24,6 @@ def save_tasks(tasks):
     with open("tasks.json", "w") as f:
         json.dump(tasks, f)
 
-# ---------------- LOGIN ----------------
-
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -37,8 +32,6 @@ def login():
             return redirect("/home")
         return "Wrong login"
     return render_template("login.html")
-
-# ---------------- HOME ----------------
 
 @app.route("/home", methods=["GET", "POST"])
 def home():
@@ -54,7 +47,6 @@ def home():
         status = request.form["status"]
 
         tasks.append({
-            "id": str(uuid.uuid4()),
             "task": task,
             "deadline": f"{date} {time}",
             "status": status,
@@ -66,39 +58,18 @@ def home():
 
     return render_template("index.html", tasks=tasks)
 
-# ---------------- UPDATE STATUS ----------------
-
-@app.route("/update_status/<task_id>", methods=["POST"])
-def update_status(task_id):
+@app.route("/delete/<int:index>")
+def delete(index):
     tasks = load_tasks()
-
-    for task in tasks:
-        if task["id"] == task_id:
-            new_status = request.form["status"]
-            task["status"] = new_status
-            task["quote"] = quotes[new_status]
-            break
-
-    save_tasks(tasks)
+    if 0 <= index < len(tasks):
+        tasks.pop(index)
+        save_tasks(tasks)
     return redirect("/home")
-
-# ---------------- DELETE ----------------
-
-@app.route("/delete/<task_id>")
-def delete(task_id):
-    tasks = load_tasks()
-    tasks = [t for t in tasks if t["id"] != task_id]
-    save_tasks(tasks)
-    return redirect("/home")
-
-# ---------------- LOGOUT ----------------
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
-
-# ---------------- RUN ----------------
 
 if __name__ == "__main__":
     app.run(debug=True)
