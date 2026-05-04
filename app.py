@@ -14,6 +14,8 @@ quotes = {
     "Done": "Well done! Task completed."
 }
 
+# ---------------- FILE HANDLING ----------------
+
 def load_tasks():
     if os.path.exists("tasks.json"):
         with open("tasks.json", "r") as f:
@@ -24,6 +26,8 @@ def save_tasks(tasks):
     with open("tasks.json", "w") as f:
         json.dump(tasks, f)
 
+# ---------------- LOGIN ----------------
+
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -32,6 +36,8 @@ def login():
             return redirect("/home")
         return "Wrong login"
     return render_template("login.html")
+
+# ---------------- HOME ----------------
 
 @app.route("/home", methods=["GET", "POST"])
 def home():
@@ -58,18 +64,40 @@ def home():
 
     return render_template("index.html", tasks=tasks)
 
+# ---------------- DELETE TASK ----------------
+
 @app.route("/delete/<int:index>")
 def delete(index):
     tasks = load_tasks()
+
     if 0 <= index < len(tasks):
         tasks.pop(index)
         save_tasks(tasks)
+
     return redirect("/home")
+
+# ---------------- UPDATE STATUS (NEW FEATURE) ----------------
+
+@app.route("/update_status/<int:index>", methods=["POST"])
+def update_status(index):
+    tasks = load_tasks()
+
+    if 0 <= index < len(tasks):
+        new_status = request.form["status"]
+        tasks[index]["status"] = new_status
+        tasks[index]["quote"] = quotes[new_status]
+        save_tasks(tasks)
+
+    return redirect("/home")
+
+# ---------------- LOGOUT ----------------
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
+
+# ---------------- RUN APP ----------------
 
 if __name__ == "__main__":
     app.run(debug=True)
